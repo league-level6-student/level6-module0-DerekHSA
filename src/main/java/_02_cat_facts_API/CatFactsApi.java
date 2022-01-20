@@ -17,66 +17,60 @@ A swagger page for this very simple API can be found here: https://app.swaggerhu
  */
 public class CatFactsApi {
 
-    private static final String baseUrl = "https://meowfacts.herokuapp.com/";
+	private static final String baseUrl = "https://meowfacts.herokuapp.com/";
 
-    private WebClient webClient;
+	private WebClient webClient;
 
-    public CatFactsApi() {
-        this.webClient = WebClient
-                .builder()
-                .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-    }
+	public CatFactsApi() {
+		this.webClient = WebClient.builder().baseUrl(baseUrl)
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
+	}
 
-    public void testRequest(){
-        /*
-        Use the WebClient to make the request, converting the response to String.class.
-        This request doesn't require url parameters, so you can omit the .uri() method call entirely
-        */
+	public void testRequest() {
+		/*
+		 * Use the WebClient to make the request, converting the response to
+		 * String.class. This request doesn't require url parameters, so you can omit
+		 * the .uri() method call entirely
+		 */
+		Mono<String> stringMono = webClient.get().retrieve().bodyToMono(String.class);
 
+		// Collect the response from the Mono object
+		String response = stringMono.block();
+		System.out.println(response);
+		/*
+		 * Print out the actual JSON response - this is what you will input into
+		 * jsonschema2pojo.com
+		 */
 
-        //Collect the response from the Mono object
+		/*
+		 * Use http://www.jsonschema2pojo.org/ to generate your POJO and place it in the
+		 * cat_facts_API.data_transfer_objects package. Select: Class name: CatWrapper
+		 * Target Language = java Source Type = JSON Annotation Style = Gson
+		 */
+	}
 
+	public CatWrapper getCatFact() {
 
-        /*
-        Print out the actual JSON response -
-        this is what you will input into jsonschema2pojo.com
-         */
+		// Make the request, saving the response in an object of the type that you just
+		// created in your
+		// data_transfer_objects package (CatWrapper)
+		Mono<CatWrapper> cwMono = webClient.get().retrieve().bodyToMono(CatWrapper.class);
+		// Use block() to collect the response into a java object using the class you
+		// just created
+		CatWrapper cw = cwMono.block();
+		// return the Object
+		return cw;
 
+	}
 
-        /*
-        Use http://www.jsonschema2pojo.org/ to generate your POJO
-        and place it in the cat_facts_API.data_transfer_objects package.
-        Select:
-        Class name: CatWrapper
-        Target Language = java
-        Source Type = JSON
-        Annotation Style = Gson
-        */
-    }
+	public String findCatFact() {
+		// use the getCatFact method to retrieve a cat fact
+		CatWrapper cw = getCatFact();
+		// return the first (and only) String in the Arraylist of data in the response
+		return cw.getData().get(0);
+	}
 
-    public String getCatFact() {
-
-        //Make the request, saving the response in an object of the type that you just created in your
-        //data_transfer_objects package (CatWrapper)
-
-        //Use block() to collect the response into a java object using the class you just created
-
-        //return the Object
-        return null;
-
-
-    }
-
-    public String findCatFact(){
-        //use the getCatFact method to retrieve a cat fact
-
-        //return the first (and only) String in the Arraylist of data in the response
-        return null;
-    }
-
-    public void setWebClient(WebClient webClient) {
-        this.webClient = webClient;
-    }
+	public void setWebClient(WebClient webClient) {
+		this.webClient = webClient;
+	}
 }
